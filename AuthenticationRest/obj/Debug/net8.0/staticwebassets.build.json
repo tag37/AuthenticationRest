@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "VDslL2CFUxYnXV9jQqmqsh4ZHwH3NUWmCapAVLWyjFY=",
+  "Source": "AuthenticationRest",
+  "BasePath": "_content/AuthenticationRest",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
