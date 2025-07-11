@@ -9,3 +9,16 @@
 /.vs/ProjectEvaluation
 /AppInsightTesting/bin/Debug/net8.0
 /AppInsightTesting/obj
+/Auth.BackgroundService/bin/Debug/net8.0
+/Auth.BackgroundService/obj/Debug/net8.0
+/Auth.BackgroundService/obj
+/Auth.Exception/bin/Debug/net8.0
+/Auth.Exception/obj/Debug/net8.0
+/Auth.Exception/obj
+/AuthenticationRest/bin/Debug/net8.0
+/AuthenticationRest/obj/Debug/net8.0
+/AuthenticationRest/obj
+/ConsoleApp1/bin/Debug/net8.0
+/ConsoleApp1/obj/Debug/net8.0
+/ConsoleApp1/obj
+/.vs/AuthenticationRest/config
