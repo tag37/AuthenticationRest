@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using Auth.Exception;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +27,7 @@ namespace AppInsightTesting
 
             builder.Logging.AddOpenTelemetry(options =>
             {
-                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName)).AddOtlpExporter();
+                options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName, serviceVersion: "1.11")).AddOtlpExporter();
                 options.AddAzureMonitorLogExporter(option => option.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]);
                 options.IncludeScopes = true; // Optional: include scopes in logs
                 options.IncludeFormattedMessage = true; // Optional: include formatted message in logs
@@ -43,8 +45,6 @@ namespace AppInsightTesting
                 .AddSource(MyActivitySource.Name)
                 .AddAspNetCoreInstrumentation()
                 .AddAzureMonitorTraceExporter();
-
-
             }).WithMetrics(matrix =>
             {
                 matrix.AddAzureMonitorMetricExporter(option => option.ConnectionString = builder.Configuration["ApplicationInsights:ConnectionString"]);
@@ -55,6 +55,8 @@ namespace AppInsightTesting
             //}
             //);
             builder.Services.AddHostedService<ServiceHostedA>();
+            //builder.Services.AddScoped<ServiceHostedA>();
+
             builder.Services.AddScoped<ServiceChildA>();
             builder.Services.AddScoped<ServiceChildB>();
             var application = builder.Build();
@@ -63,10 +65,24 @@ namespace AppInsightTesting
 
             try
             {
-                await application.RunManageAsync();
+                var logger = application.Services.GetRequiredService<ILogger<Program>>();
+                await application.RunManageAsync(logger);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                //var exception = new AuthenticationException("An error occurred while running the application.", ex);
+
+                //var activity = MyActivitySource.Instance.StartActivity(MyActivitySource.Name);
+                //var assembly = typeof(Program).Assembly;
+                //var name = assembly.GetName().Name;
+                //var version = assembly.GetName().Version?.ToString();
+                //activity?.SetStatus(ActivityStatusCode.Error);
+                //activity?.AddException(exception);
+                //activity?.SetTag("assembly", assembly);
+                //activity?.SetTag("innermostAssembly", assembly);
+                //activity?.SetTag("error", true);
+
+
                 Environment.Exit(1);
             }
 

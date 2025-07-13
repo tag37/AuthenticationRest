@@ -25,7 +25,7 @@ namespace AppInsightTesting
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred in ServiceChildA Cought from serviceChildB.");
-                throw new Exception("Catch - ServiceChildA - Exception"); //Re - throw the exception to be handled by the caller
+                throw;
             }
         }
     }

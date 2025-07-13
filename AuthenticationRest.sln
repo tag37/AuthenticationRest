@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.Exception", "Auth.Exce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppInsightTesting", "AppInsightTesting\AppInsightTesting.csproj", "{F14E0C46-F139-487B-918C-EF4E4522AA0F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelemetryClientExample", "TelemetryClientExample\TelemetryClientExample.csproj", "{5C6194B0-7D07-4217-A7B4-7F11E2C8DB0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F14E0C46-F139-487B-918C-EF4E4522AA0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F14E0C46-F139-487B-918C-EF4E4522AA0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F14E0C46-F139-487B-918C-EF4E4522AA0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C6194B0-7D07-4217-A7B4-7F11E2C8DB0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C6194B0-7D07-4217-A7B4-7F11E2C8DB0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C6194B0-7D07-4217-A7B4-7F11E2C8DB0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C6194B0-7D07-4217-A7B4-7F11E2C8DB0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

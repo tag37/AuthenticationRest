@@ -22,3 +22,5 @@
 /ConsoleApp1/obj/Debug/net8.0
 /ConsoleApp1/obj
 /.vs/AuthenticationRest/config
+/TelemetryClientExample/bin/Debug/net8.0
+/TelemetryClientExample/obj

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Auth.Exception;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ namespace AppInsightTesting
 
     public static class Extension
     {
-        public static async Task RunManageAsync(this IHost host, CancellationToken token = default)
+        public static async Task RunManageAsync<T>(this IHost host, ILogger<T> logger, CancellationToken token = default)
         {
             try
             {
@@ -23,26 +24,20 @@ namespace AppInsightTesting
             }
             catch (Exception ex)
             {
-                var exception = new Auth.Exception.AuthenticationException("An error occurred while running the application.", ex);
-                using var activity = MyActivitySource.Instance.StartActivity(MyActivitySource.Name);
+                //var telemetryClient = host.Services.GetRequiredService<TelemetryClient>();
+                // var logger = host.Services.GetRequiredService<ILogger<Program>>();
+                var exception = new AuthenticationException("An error occurred while running the application.", ex);
+                logger.LogError(exception, "Unhandled exception caught in Main");
+                //WorkingUsingActivity(host, exception);
 
-                // Still within scope of an active host
-                var logger = host.Services.GetRequiredService<ILogger<Program>>();
-                var tracerProvider = host.Services.GetService<TracerProvider>();
-
-
-                activity?.SetStatus(ActivityStatusCode.Error);
-                activity?.AddException(exception);
-                
+                //var exceptionTelemetry = new ExceptionTelemetry(exception);
+                //telemetryClient.TrackException(exceptionTelemetry);
+                //await telemetryClient.FlushAsync(CancellationToken.None);
                 //activity?.AddTag("error", "true")
                 //.AddTag("error.kind", exception.GetType().Name)
                 //.AddTag("error.message", exception.Message)
                 //.AddTag("error.stack", exception.StackTrace);
-                activity?.Stop();
 
-                tracerProvider?.ForceFlush();
-                logger.LogError(ex, "Unhandled exception caught in Main");
-                await Task.Delay(5000);
                 throw exception;
             }
             finally
@@ -56,6 +51,26 @@ namespace AppInsightTesting
                     host.Dispose();
                 }
             }
+        }
+
+        private static void WorkingUsingActivity(IHost host, AuthenticationException exception)
+        {
+            //var activity = MyActivitySource.Instance.StartActivity(MyActivitySource.Name);
+
+            // Still within scope of an active host
+            var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
+            //var assembly = typeof(Program).Assembly;
+            //var name = assembly.GetName().Name;
+            //var version = assembly.GetName().Version?.ToString();
+
+            //activity?.SetStatus(ActivityStatusCode.Error);
+            //activity?.AddException(exception);
+            //activity?.SetTag("assembly", assembly);
+            //activity?.SetTag("innermostAssembly", assembly);
+            //activity?.SetTag("error", true);
+
+            logger.LogError(exception, "Unhandled exception caught in Main");
         }
     }
 }
