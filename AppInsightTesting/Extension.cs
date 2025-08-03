@@ -24,20 +24,8 @@ namespace AppInsightTesting
             }
             catch (Exception ex)
             {
-                //var telemetryClient = host.Services.GetRequiredService<TelemetryClient>();
-                // var logger = host.Services.GetRequiredService<ILogger<Program>>();
                 var exception = new AuthenticationException("An error occurred while running the application.", ex);
                 logger.LogError(exception, "Unhandled exception caught in Main");
-                //WorkingUsingActivity(host, exception);
-
-                //var exceptionTelemetry = new ExceptionTelemetry(exception);
-                //telemetryClient.TrackException(exceptionTelemetry);
-                //await telemetryClient.FlushAsync(CancellationToken.None);
-                //activity?.AddTag("error", "true")
-                //.AddTag("error.kind", exception.GetType().Name)
-                //.AddTag("error.message", exception.Message)
-                //.AddTag("error.stack", exception.StackTrace);
-
                 throw exception;
             }
             finally

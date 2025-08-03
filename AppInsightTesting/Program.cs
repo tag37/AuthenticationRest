@@ -82,8 +82,8 @@ namespace AppInsightTesting
                 //activity?.SetTag("innermostAssembly", assembly);
                 //activity?.SetTag("error", true);
 
-
-                Environment.Exit(1);
+                //throw ex;
+                //Environment.Exit(1);
             }
 
         }

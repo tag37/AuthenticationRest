@@ -21,11 +21,9 @@ namespace AuthenticationRest.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
-        [Authorize(Roles = "RestApiAccess")]
+        [Authorize]
         public IActionResult Get()
         {
-
-
             var user = HttpContext.User;
 
             if (user == null || !user.Identity.IsAuthenticated)
@@ -33,16 +31,14 @@ namespace AuthenticationRest.Controllers
 
             var username = user.Identity.Name; // usually the "sub" or "name" claim
 
+
             var email = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var userId = user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
 
             return Ok(new
             {
-                Username = username,
-                Email = email,
-                UserId = userId,
-                Roles = roles
+                User = user
             });
         }
     }
