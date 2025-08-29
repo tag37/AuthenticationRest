@@ -1,3 +1,17 @@
+Subject: Update on Authentication Issue Resolution
+
+Status: We are actively working to resolve the login issue in Kubernetes but have not yet identified a complete solution.
+
+Problem: Users cannot log in. The system is rejecting authentication requests because a required security cookie is not being found.
+
+Root Cause: The issue is complex, involving the interaction between Azure AD, the Kubernetes ingress controller, and our application's security settings.
+
+Current Situation: We have tried several approaches to fix the cookie path and storage configuration. While we have made progress, the core issue persists.
+
+Next Steps: We are investigating multiple potential solutions and may need to try different technical approaches. This may require additional time for testing and implementation.
+
+I will provide another update once we have a clearer path to resolution.
+
 The issue is that even though the cookie is being set with the correct path, it's **not being sent back** to the server when Azure AD redirects back to your application. Here's why and how to fix it:
 
 ## Root Cause:
