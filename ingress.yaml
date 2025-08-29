@@ -1,17 +1,27 @@
 Subject: Update on Authentication Issue Resolution
 
-Status: We are actively working to resolve the login issue in Kubernetes but have not yet identified a complete solution.
+Status: We are actively investigating the login issue in Kubernetes. Our goal is to implement the new Azure AD login without impacting existing consumers who use Bearer token authentication.
 
-Problem: Users cannot log in. The system is rejecting authentication requests because a required security cookie is not being found.
+Problem: The new Azure AD login flow is failing due to a missing security cookie. However, we must ensure this fix does not break the existing Bearer token API authentication that our current clients depend on.
 
-Root Cause: The issue is complex, involving the interaction between Azure AD, the Kubernetes ingress controller, and our application's security settings.
+Key Challenge: We are analyzing how both authentication methods (Cookie-based for browsers and Bearer token for API clients) can work side-by-side in the same application without interfering with each other.
 
-Current Situation: We have tried several approaches to fix the cookie path and storage configuration. While we have made progress, the core issue persists.
+Current Situation: We have tried several configurations for the cookie-based flow. The existing Bearer token flow continues to work correctly. Our focus is now on finding a solution that allows both schemes to coexist.
 
-Next Steps: We are investigating multiple potential solutions and may need to try different technical approaches. This may require additional time for testing and implementation.
+Next Steps: This requires careful testing to ensure compatibility. We are exploring different technical approaches, which may take additional time to implement and validate safely.
 
-I will provide another update once we have a clearer path to resolution.
+I will provide another update once we have a viable solution that supports both authentication methods.
 
+Why This is Complex (Technical Detail for Background):
+We have two separate authentication schemes running:
+
+Bearer Tokens: For API clients (like mobile apps or other services). They send a token in the request header.
+
+Cookies (OIDC): For browser users. This uses a cookie-based login flow with Azure AD.
+
+The challenge is configuring the application to support both simultaneously without one interfering with the other, which requires precise configuration.
+
+New chat
 The issue is that even though the cookie is being set with the correct path, it's **not being sent back** to the server when Azure AD redirects back to your application. Here's why and how to fix it:
 
 ## Root Cause:
