@@ -1,3 +1,154 @@
+The issue is that even though the cookie is being set with the correct path, it's **not being sent back** to the server when Azure AD redirects back to your application. Here's why and how to fix it:
+
+## Root Cause:
+The correlation cookie is set properly, but when Azure AD redirects back to:
+```
+https://domain.com/dataservices/productstatic/signin-oidc?code=...&state=...
+```
+
+The browser is **not including the correlation cookie** in this request because of the way the redirect happens.
+
+## Solutions:
+
+### 1. **Fix the Redirect URI in Azure AD Configuration**
+
+This is the **most common fix**. Azure AD must redirect back to the **exact same URL** that was used in the initial authentication request.
+
+**In Azure Portal → App Registration → Authentication:**
+- ✅ Redirect URI: `https://domain.com/dataservices/productstatic/signin-oidc`
+- ❌ NOT: `https://domain.com/signin-oidc`
+
+### 2. **Update OpenID Connect Configuration**
+
+```csharp
+services.AddOpenIdConnect(options =>
+{
+    // Your existing config...
+    
+    // CRITICAL: Set the exact redirect URI
+    options.Events = new OpenIdConnectEvents
+    {
+        OnRedirectToIdentityProvider = context =>
+        {
+            var baseUri = context.Request.Scheme + "://" + context.Request.Host;
+            context.ProtocolMessage.RedirectUri = 
+                $"{baseUri}/dataservices/productstatic/signin-oidc";
+            return Task.CompletedTask;
+        },
+        
+        OnRedirectToIdentityProviderForSignOut = context =>
+        {
+            var baseUri = context.Request.Scheme + "://" + context.Request.Host;
+            context.ProtocolMessage.PostLogoutRedirectUri = 
+                $"{baseUri}/dataservices/productstatic";
+            return Task.CompletedTask;
+        }
+    };
+});
+```
+
+### 3. **Add Correlation Cookie Event Handler**
+
+```csharp
+options.Events = new OpenIdConnectEvents
+{
+    OnCorrelationFailed = context =>
+    {
+        Console.WriteLine($"Correlation failed: {context.Failure?.Message}");
+        context.Response.Redirect("/error/correlation-failed");
+        context.HandleResponse();
+        return Task.CompletedTask;
+    }
+};
+```
+
+### 4. **Verify SameSite Cookie Settings**
+
+```csharp
+services.AddCookie(options =>
+{
+    options.Cookie.Path = "/dataservices/productstatic";
+    options.Cookie.SameSite = SameSiteMode.Lax; // or None for cross-site
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    
+    // For correlation cookie specifically
+    options.Cookie.Name = ".AspNetCore.Correlation";
+    options.Cookie.HttpOnly = true;
+});
+```
+
+### 5. **Check Browser Console for Warnings**
+
+Open browser Dev Tools → Console and look for warnings like:
+- `Cookie will be soon rejected because it has the "SameSite" attribute set to "None" or an invalid value without the "secure" attribute`
+- `Cookie associated with a resource from http:// was blocked because the cookie was sent over https`
+
+### 6. **Temporary Test: Disable SameSite Restrictions**
+
+**For testing only** - to confirm if SameSite is the issue:
+
+```csharp
+services.AddCookie(options =>
+{
+    options.Cookie.Path = "/dataservices/productstatic";
+    options.Cookie.SameSite = SameSiteMode.Unspecified; // Temporary test
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+```
+
+### 7. **Verify HTTPS Configuration**
+
+Ensure your ingress is properly configured for HTTPS:
+
+```yaml
+annotations:
+  nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  nginx.ingress.kubernetes.io/ssl-redirect: "true"
+```
+
+### 8. **Debug the Exact Redirect URL**
+
+Add logging to see what URL Azure AD is redirecting to:
+
+```csharp
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/signin-oidc"))
+    {
+        Console.WriteLine($"Incoming request: {context.Request.GetEncodedPathAndQuery()}");
+        Console.WriteLine($"Cookies: {context.Request.Headers.Cookie}");
+    }
+    await next();
+});
+```
+
+## Quick Diagnostic Test:
+
+1. **Check the Network Tab in Browser Dev Tools:**
+   - Look at the redirect from Azure AD back to your app
+   - Check the **Request Headers** for the `Cookie` header
+   - Verify the `AspNetCore.Correlation` cookie is present
+
+2. **Check the Application Logs:**
+   ```bash
+   kubectl logs <your-pod-name> -f
+   ```
+
+3. **Test with Different Browser:**
+   - Some browsers have stricter cookie policies
+   - Try in Chrome Incognito or Firefox Private mode
+
+## Most Likely Fix:
+
+The issue is **90% likely** that Azure AD is redirecting back to a different URL than where the correlation cookie was set. 
+
+**Double-check these match exactly:**
+1. The URL where the correlation cookie was set
+2. The URL where Azure AD redirects back to
+3. The redirect URI configured in Azure AD portal
+
+The fact that you can see the cookie but it's not being sent back indicates a **URL mismatch** or **SameSite cookie restriction** issue.
+
 
 tushar ghulaxe <tushar.ghulaxe37@gmail.com>
 9:25 PM (44 minutes ago)
