@@ -1,3 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: product-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers: "4 16k"
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "16k"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+  - host: your-domain.com
+    http:
+      paths:
+      - path: /dataservices/productstatic(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: product-service
+            port:
+              number: 80
+
 I'm currently analyzing the OpenID Connect approach for authentication. While Azure AD integration is functional, a persistent technical issue remains: 
 the application cannot locate the required authentication cookies after login completes.
 
