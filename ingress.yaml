@@ -1,3 +1,17 @@
+# Generate 32 random bytes
+$randomBytes = (1..32 | ForEach-Object { Get-Random -Maximum 256 })
+
+# Add a salt string
+$salt = [System.Text.Encoding]::UTF8.GetBytes("MySecretSalt123")
+
+# Combine random bytes + salt
+$combined = $randomBytes + $salt
+
+# Convert to Base64 string
+$apiKey = [Convert]::ToBase64String($combined)
+Write-Output $apiKey
+
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
